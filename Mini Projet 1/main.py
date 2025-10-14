@@ -1,87 +1,116 @@
-# !/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Affichage minimal d'une grille Sudoku avec pygame (version Codespaces).
+"""
+Created on Thu Oct  9 10:28:10 2025
 
-Ce module dessine une grille 9x9 et sauvegarde un screenshot.
+@author: m.tanguy
 """
 
-import sys
-import os
-import pygame
+from dosuko_api import EMPTY_BOARD, get_new_dosuko_board
 
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
+class Sudoku:
+    def __init__(self):
+        self.grid, self.starting_grid  = EMPTY_BOARD, EMPTY_BOARD
+        self.difficulty = None
+        
+        self.__caractere_vide = '.'
+        self.__vertical_sep = '|'
+        self.__horizontal_sep = '—'
+        
+    def _empty(self):
+        self.grid = EMPTY_BOARD
+    
+    def generate_new_grid(self):
+        dosuko_response = get_new_dosuko_board()
+        
+        self.starting_grid, self.difficulty = dosuko_response['grid'], dosuko_response['difficulty']
+        self.grid = self.starting_grid
+    
+    def place(self, row: int, col: int, val: int) -> bool:
+        """
 
-GRILLE = [
-    [7,8,0,4,0,0,1,2,0],
-    [6,0,0,0,7,5,0,0,9],
-    [0,0,0,6,0,1,0,7,8],
-    [0,0,7,0,4,0,2,6,0],
-    [0,0,1,0,5,0,9,3,0],
-    [9,0,4,0,6,0,0,0,5],
-    [0,7,0,3,0,0,0,1,2],
-    [1,2,0,0,0,7,4,0,0],
-    [0,4,9,2,0,6,0,0,7]
-]
+        Parameters
+        ----------
+        row : int
+            Position (rangée, 0-8) de la valeur.
+        col : int
+            Position (colonne, 0-8) de la valeur.
+        val : int
+            Valeur à placer.
 
-LARGEUR, HAUTEUR = 1080, 720
-CELL = 60
-FICHIER_IMAGE = "Mini Projet 1/pygame_screenshot.png"
+        Returns
+        -------
+        bool
+            Renvoyer True si la valeur peut etre placer selon ses paramètres, False dans le cas contraire.
 
-def dessiner(ecran: pygame.Surface):
-    """Dessine la grille Sudoku sur la surface fournie et sauvegarde l'image."""
-    blanc = (255,255,255)
-    noir = (0,0,0)
-    gris = (180,180,180)
+        """
+        if not(1 <= val <= 9):
+            return False
+        
+        # Si la case est déjà utilisée
+        if self.grid[row][col]:
+            return False
+        
+        # Vérifier si la valeur est valide dans la rangée [row]
+        if val in self.grid[row]:
+            return False
+        
+        # Vérifier si la valeur est valide dans la colonne [col]
+        for r in self.grid:
+            if val == r[col]:
+                return False
+        
+        # Vérifier si la valeur est valide dans son carré 3x3
+        debut = (
+            row - row%3,
+            col - col%3
+        )
+        fin = (
+            row + (2 - row%3),
+            col + (2 - col%3)
+        )
+        for i in range(debut[0], fin[0]):
+            for j in range(debut[1], fin[1]):
+                if val ==self. grid[i][j]:
+                    return False
+        
+        # la valeur est valide !
+        self.grid[row][col] = val
+        return True
 
-    ecran.fill(blanc)
-    taille = CELL*9
-    grille = pygame.Surface((taille, taille))
-    grille.fill(blanc)
-
-    # lignes fines
-    for i in range(10):
-        if i % 3 != 0:
-            pygame.draw.line(grille, gris, (i*CELL,0),(i*CELL,taille),1)
-            pygame.draw.line(grille, gris, (0,i*CELL),(taille,i*CELL),1)
-
-    # lignes épaisses 3x3
-    for i in range(4):
-        pygame.draw.line(grille, noir, (i*3*CELL,0),(i*3*CELL,taille),4)
-        pygame.draw.line(grille, noir, (0,i*3*CELL),(taille,i*3*CELL),4)
-
-    # nombres
-    police = pygame.font.Font(None, 40)
-    for i in range(9):
-        for j in range(9):
-            val = GRILLE[i][j]
-            if val:
-                txt = police.render(str(val), True, noir)
-                rect = txt.get_rect(center=(j*CELL+CELL//2, i*CELL+CELL//2))
-                grille.blit(txt, rect)
-
-    ecran.blit(grille, ((LARGEUR-taille)//2, (HAUTEUR-taille)//2))
-    pygame.display.flip()
-    pygame.image.save(ecran, FICHIER_IMAGE)
+    def is_solution(self):
+        # Si pas de cases vides
+        if all(val != 0 for val in row for row in self.grid):
+            return False
+    
+    def __str__(self):
+        __print_str = ""
+        for i in range(9):
+            if i % 3 == 0 and i != 0:
+                __print_str += f"{self.__horizontal_sep} " * 11 + '\n' # Separateur horizontal pour les blocks 3x3
+        
+            for j in range(9):
+                if j % 3 == 0 and j != 0:
+                    __print_str += f"{self.__vertical_sep} " # Separateur vertical pour les blocks 3x3
+        
+                if self.grid[i][j] == 0:
+                    __print_str += f"{self.__caractere_vide} " # Representer les cellules vide avec un point.
+                else:
+                    __print_str += f"{self.grid[i][j]} "
+            __print_str += '\n' # Nouvelle ligne après chaque rangée
+        
+        return __print_str
 
 
-def main():
-    """Initialise pygame et boucle principale. Utiliser --once pour quitter après le rendu."""
-    pygame.init()
-    ecran = pygame.display.set_mode((LARGEUR, HAUTEUR))
-    dessiner(ecran)
-
-    if "--once" in sys.argv:
-        pygame.quit()
-        return
-
-    horloge = pygame.time.Clock()
+if __name__ == "__main__":
+    sudoku = Sudoku()
+    sudoku.generate_new_grid()
     while True:
-        for evt in pygame.event.get():
-            if evt.type == pygame.QUIT:
-                pygame.quit()
-                return
-        horloge.tick(60)
-
-
-if __name__ == '__main__':
-    main()
+        print(sudoku)
+        val = int(input("value: "))
+        col = int(input("col: "))
+        row = int(input("row: "))
+        
+        if sudoku.place(row, col, val):
+            print(f"[{val}] a été placée à ({col}, {row}).\n")
+        else:
+            print(f"Ne peut pas placer {val} à ({col}, {row}).\nRéessayer avec une nouvelle valeur.\n")
