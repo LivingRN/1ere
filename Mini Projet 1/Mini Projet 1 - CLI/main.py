@@ -5,11 +5,13 @@ Created on Thu Oct  9 10:28:10 2025
 @author: m.tanguy
 """
 
+import nice_print as np
+import pandas as pd
 from dosuko_api import EMPTY_BOARD, get_new_dosuko_board
 
 class Sudoku:
     def __init__(self):
-        self.grid, self.starting_grid  = EMPTY_BOARD, EMPTY_BOARD
+        self.grid, self.starting_grid  = pd.DataFrame(EMPTY_BOARD), pd.DataFrame(EMPTY_BOARD)
         self.difficulty = None
         
         self.__caractere_vide = '.'
@@ -17,15 +19,15 @@ class Sudoku:
         self.__horizontal_sep = '—'
         
     def _empty(self):
-        self.grid = EMPTY_BOARD
+        self.grid = pd.DataFrame(EMPTY_BOARD)
     
     def generate_new_grid(self):
         dosuko_response = get_new_dosuko_board()
         
-        self.starting_grid, self.difficulty = dosuko_response['grid'], dosuko_response['difficulty']
+        self.starting_grid, self.difficulty = pd.DataFrame(dosuko_response['grid']), dosuko_response['difficulty']
         self.grid = self.starting_grid
     
-    def place(self, row: int, col: int, val: int) -> bool:
+    def _is_valid_before_place(self, row: int, col: int, val: int) -> bool:
         """
 
         Parameters
@@ -73,14 +75,18 @@ class Sudoku:
                 if val ==self. grid[i][j]:
                     return False
         
-        # la valeur est valide !
-        self.grid[row][col] = val
+        # la valeur est validée !
         return True
 
     def is_solution(self):
         # Si pas de cases vides
         if all(val != 0 for val in row for row in self.grid):
             return False
+        
+        if all(set(row) == set(range(1, 9)) for row in self.grid):
+            return False
+        
+        if all()
     
     def __str__(self):
         __print_str = ""
@@ -95,7 +101,13 @@ class Sudoku:
                 if self.grid[i][j] == 0:
                     __print_str += f"{self.__caractere_vide} " # Representer les cellules vide avec un point.
                 else:
-                    __print_str += f"{self.grid[i][j]} "
+                # Imprimer une valeur non-nulle
+                    if self.grid[i][j] == self.starting_grid[i][j]:
+                        __print_str += np.bold(f"{self.grid[i][j]} ")
+                    else:
+                        __print_str += f"{self.grid[i][j]} "
+                    
+                    
             __print_str += '\n' # Nouvelle ligne après chaque rangée
         
         return __print_str

@@ -5,8 +5,10 @@ Created on Mon Oct 13 08:48:18 2025
 @author: m.tanguy
 """
 
-def my_func(row, col):
-    print(f"Start position {start}\n", f"End position {end}\n")
-    
-while True:
-    my_func(int(input("row: ")), int(input("col: ")))
+import pandas as pd
+
+b = pd.DataFrame([[0 for _ in range(9)] for _ in range(9)])
+
+b.loc[5, 1] = 5
+
+print(b)
