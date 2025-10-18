@@ -9,7 +9,7 @@ import sys
 import os
 import pygame
 
-os.environ['SDL_VIDEODRIVER'] = 'dummy'
+os.environ['SDL_VIDEODRIVER'] = 'dummy' # For Codespaces compatibility
 
 GRILLE = [
     [7,8,0,4,0,0,1,2,0],
@@ -25,7 +25,7 @@ GRILLE = [
 
 LARGEUR, HAUTEUR = 1080, 720
 CELL = 60
-FICHIER_IMAGE = "Mini Projet 1/pygame_screenshot.png"
+FICHIER_IMAGE = "Mini Projet 1/Mini Projet 1 - GUI/pygame_screenshot.png"
 
 def dessiner(ecran: pygame.Surface):
     """Dessine la grille Sudoku sur la surface fournie et sauvegarde l'image."""
