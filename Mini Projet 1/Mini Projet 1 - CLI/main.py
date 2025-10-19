@@ -127,10 +127,14 @@ class Sudoku:
         bool
             Renvoyer True si la valeur a été placée, False dans le cas contraire.
         """
-        if validate and self._is_valid_before_place(row, col, val):
-            self.grid[row][col] = val
-            return True
-        return False
+        if self.starting_grid[row][col] != 0:
+            return False
+        
+        if validate and not self._is_valid_before_place(row, col, val):
+            return False
+        
+        self.grid[row][col] = val
+        return True
     
     def is_solution(self):
         """Verify if the current grid is a valid solution."""
@@ -173,7 +177,9 @@ class Sudoku:
                     if self.grid[i][j] == self.starting_grid[i][j]:
                         __print_str += bold(f"{self.grid[i][j]} ")
                     else:
-                        if not self._is_valid_after_place(i, j, self.grid[i][j]):
+                        if self.is_solution():
+                            __print_str += green(f"{self.grid[i][j]} ")
+                        elif not self._is_valid_after_place(i, j, self.grid[i][j]):
                             __print_str += red(f"{self.grid[i][j]} ")
                         else:
                             __print_str += grey(f"{self.grid[i][j]} ")
@@ -190,20 +196,23 @@ if __name__ == "__main__":
         val = input("value: ")
         
         if val == 'solution':
-            sudoku.find_solution()
-            print("Solution trouvée !\n")
-            print(sudoku)
-            break
+            if sudoku.find_solution():
+                print("\n\nSolution proposée :\n")
+                print(sudoku)
+                break
+            else:
+                print("Aucune solution trouvée.\n")
+                continue
         
         val = int(val)
         col = int(input("col: "))
         row = int(input("row: "))
         
-        if sudoku.place(row, col, val, validate=True):
+        if sudoku.place(row, col, val, validate=False):
             print(f"[{val}] a été placée à ({col}, {row}).\n")
             if sudoku.is_solution():
                 print("Félicitations ! Vous avez résolu le Sudoku.\n")
                 print(sudoku)
                 break
         else:
-            print(f"Ne peut pas placer {val} à ({col}, {row}).\nRéessayer avec une nouvelle valeur.\n")
+            print(f"Impossible de placer [{val}] à ({col}, {row}). Réessayez.\n")

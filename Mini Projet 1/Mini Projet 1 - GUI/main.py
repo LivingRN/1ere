@@ -1,17 +1,13 @@
 # !/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""Affichage minimal d'une grille Sudoku avec pygame (version Codespaces).
+"""Affichage minimal d'une grille Sudoku avec pygame.
 
-Ce module dessine une grille 9x9 et sauvegarde un screenshot.
+Ce module dessine une grille 9x9.
 """
 
-import sys
-import os
 import pygame
 
-os.environ['SDL_VIDEODRIVER'] = 'dummy' # For Codespaces compatibility
-
-GRILLE = [
+grille = [
     [7,8,0,4,0,0,1,2,0],
     [6,0,0,0,7,5,0,0,9],
     [0,0,0,6,0,1,0,7,8],
@@ -23,65 +19,81 @@ GRILLE = [
     [0,4,9,2,0,6,0,0,7]
 ]
 
-LARGEUR, HAUTEUR = 1080, 720
-CELL = 60
-FICHIER_IMAGE = "Mini Projet 1/Mini Projet 1 - GUI/pygame_screenshot.png"
+largeur, hauteur = 600, 600  # Taille de la fenêtre
 
-def dessiner(ecran: pygame.Surface):
-    """Dessine la grille Sudoku sur la surface fournie et sauvegarde l'image."""
-    blanc = (255,255,255)
-    noir = (0,0,0)
-    gris = (180,180,180)
+def dessiner_sudoku(ecran: pygame.Surface, x: int, y: int, taille_cellule: int = 60) -> None:
+    """Dessine la grille de Sudoku sur l'écran donné.
 
-    ecran.fill(blanc)
-    taille = CELL*9
-    grille = pygame.Surface((taille, taille))
-    grille.fill(blanc)
-
-    # lignes fines
+    Args:
+        ecran (pygame.Surface): La surface sur laquelle dessiner la grille.
+    """
+    sudoku = pygame.Surface((540, 540))
+    sudoku.fill((255, 255, 255))
+    
+    # Dessiner les lignes de la grille
     for i in range(10):
-        if i % 3 != 0:
-            pygame.draw.line(grille, gris, (i*CELL,0),(i*CELL,taille),1)
-            pygame.draw.line(grille, gris, (0,i*CELL),(taille,i*CELL),1)
+        epaisseur = 4 if i % 3 == 0 else 1
+        pygame.draw.line(sudoku, (0, 0, 0), (0, i * taille_cellule), (sudoku.get_width(), i * taille_cellule), epaisseur)
+        pygame.draw.line(sudoku, (0, 0, 0), (i * taille_cellule, 0), (i * taille_cellule, sudoku.get_height()), epaisseur)
 
-    # lignes épaisses 3x3
-    for i in range(4):
-        pygame.draw.line(grille, noir, (i*3*CELL,0),(i*3*CELL,taille),4)
-        pygame.draw.line(grille, noir, (0,i*3*CELL),(taille,i*3*CELL),4)
-
-    # nombres
-    police = pygame.font.Font(None, 40)
+    # Dessiner les chiffres
+    font = pygame.font.SysFont(None, 48)
     for i in range(9):
         for j in range(9):
-            val = GRILLE[i][j]
-            if val:
-                txt = police.render(str(val), True, noir)
-                rect = txt.get_rect(center=(j*CELL+CELL//2, i*CELL+CELL//2))
-                grille.blit(txt, rect)
+            if grille[i][j] != 0:
+                texte = font.render(str(grille[i][j]), True, (0, 0, 0))
+                x_pos = j * taille_cellule + 20
+                y_pos = i * taille_cellule + 10
+                sudoku.blit(texte, (x_pos, y_pos))
 
-    ecran.blit(grille, ((LARGEUR-taille)//2, (HAUTEUR-taille)//2))
-    pygame.display.flip()
-    pygame.image.save(ecran, FICHIER_IMAGE)
+    ecran.blit(sudoku, (x, y))
 
+def dessiner_menu(ecran: pygame.Surface) -> None:
+    """Dessine le menu sur l'écran donné.
 
-def main():
-    """Initialise pygame et boucle principale. Utiliser --once pour quitter après le rendu."""
+    Args:
+        ecran (pygame.Surface): La surface sur laquelle dessiner le menu.
+    """
+    ecran.fill((255, 255, 255))  # Remplir l'écran en blanc
+    
+    # Afficher le titre
+    font = pygame.font.SysFont(None, 36)
+    texte = font.render("Sudoku", True, (0, 0, 0))
+    ecran.blit(texte, ((largeur - texte.get_width()) // 2, 10))  # au centre
+    
+    # Afficher les buttons (instructions, nouvelle partie, quitter, etc.) qui declenchent des actions (fonctions non implémentées ici)
+    ## Afficher le bouton 'instructions'
+    font = pygame.font.SysFont(None, 24)
+    texte = font.render("Instructions", True, (0, 0, 0))
+    ecran.blit(texte, (50, 50))
+
+def main() -> None:
+    """Point d'entrée principal du programme."""
+    global largeur, hauteur
+    
     pygame.init()
-    ecran = pygame.display.set_mode((LARGEUR, HAUTEUR))
-    dessiner(ecran)
+    ecran = pygame.display.set_mode((largeur, hauteur), pygame.RESIZABLE)
+    pygame.display.set_caption("Sudoku")
+    
+    clock = pygame.time.Clock()
+    running = True
 
-    if "--once" in sys.argv:
-        pygame.quit()
-        return
+    while running:
+        for evenement in pygame.event.get():
+            if evenement.type == pygame.QUIT:
+                running = False
+            if evenement.type == pygame.KEYDOWN:
+                if evenement.key == pygame.K_q:
+                    running = False
 
-    horloge = pygame.time.Clock()
-    while True:
-        for evt in pygame.event.get():
-            if evt.type == pygame.QUIT:
-                pygame.quit()
-                return
-        horloge.tick(60)
+        largeur, hauteur = ecran.get_size()
+        
+        dessiner_menu(ecran)
+        dessiner_sudoku(ecran, (largeur - 540) // 2, (hauteur - 540) // 2)
+        pygame.display.flip()
+        clock.tick(30)
 
-
-if __name__ == '__main__':
+    pygame.quit()
+    
+if __name__ == "__main__":
     main()
