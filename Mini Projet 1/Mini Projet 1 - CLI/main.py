@@ -12,7 +12,7 @@ from dosuko_api import EMPTY_BOARD, get_new_dosuko_board
 class Sudoku:
     def __init__(self):
         # Initialize grid and starting_grid as deep copies of EMPTY_BOARD (list of lists)
-        # use deep copies to avoid shared references between grid and starting_grid
+        # use deep copies to avoid references between grid and starting_grid
         self.grid = [row[:] for row in EMPTY_BOARD]
         self.starting_grid = [row[:] for row in EMPTY_BOARD]
         self.solution = None

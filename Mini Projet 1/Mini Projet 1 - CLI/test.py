@@ -5,10 +5,14 @@ Created on Mon Oct 13 08:48:18 2025
 @author: m.tanguy
 """
 
-import pandas as pd
+# ------------------------------
 
-b = pd.DataFrame([[0 for _ in range(9)] for _ in range(9)])
+# import pandas as pd
 
-b.loc[5, 1] = 5
+# b = pd.DataFrame([[0 for _ in range(9)] for _ in range(9)])
 
-print(b)
+# b.loc[5, 1] = 5
+
+# print(b)
+
+# ------------------------------
