@@ -5,10 +5,9 @@ Created on Mon Oct 13 08:48:18 2025
 @author: m.tanguy
 """
 
-import pandas as pd
+b = [[0 for _ in range(9)] for _ in range(9)]
 
-b = pd.DataFrame([[0 for _ in range(9)] for _ in range(9)])
+b[5][1] = 5
 
-b.loc[5, 1] = 5
-
-print(b)
+for row in b:
+    print(row)
