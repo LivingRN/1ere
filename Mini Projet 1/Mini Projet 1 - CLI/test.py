@@ -5,14 +5,9 @@ Created on Mon Oct 13 08:48:18 2025
 @author: m.tanguy
 """
 
-# ------------------------------
+b = [[0 for _ in range(9)] for _ in range(9)]
 
-# import pandas as pd
+b[5][1] = 5
 
-# b = pd.DataFrame([[0 for _ in range(9)] for _ in range(9)])
-
-# b.loc[5, 1] = 5
-
-# print(b)
-
-# ------------------------------
+for row in b:
+    print(row)
